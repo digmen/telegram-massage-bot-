@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "tgId": 1145935758,
+      "createdAt": "2026-01-05T11:11:22.691Z",
+      "updatedAt": "2026-01-05T11:11:26.722Z",
+      "state": "ready",
+      "answers": [],
+      "diagSubmittedAt": null,
+      "solutionOpenedAt": null,
+      "bookedAt": null,
+      "phone": null,
+      "firstName": "Жони",
+      "username": "qwertyuiopasdfghjklzxcvbnmqweasd",
+      "chatId": 1145935758
+    }
+  ],
+  "reminders": []
+}

@@ -6,10 +6,13 @@ services:
     env_file:
       - .env
     volumes:
-      # Пробрасываем файл базы данных, чтобы данные не терялись
-      # Замени db.json на имя файла, который создает lowdb
       - ./db.json:/app/db.json
-      # Если у тебя есть папка с картинками (media), ее тоже стоит пробросить
       - ./src/const/media:/app/src/const/media
     environment:
       - NODE_ENV=production
+    deploy:
+      resources:
+        limits:
+          memory: 150M   
+        reservations:
+          memory: 64M
