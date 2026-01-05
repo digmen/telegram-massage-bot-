@@ -5,5 +5,4 @@ node_modules/
 dist/
 build/
 nodemon.json
-data/db.json
 .dockerignore
