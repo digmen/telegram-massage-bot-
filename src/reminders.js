@@ -1,7 +1,13 @@
 import cron from "node-cron";
-import { listDueReminders, markReminderSent, getUser } from "./storage.js";
+import { listDueReminders, markReminderSent, getUser, purgeOldReminders } from "./storage.js";
 
 export function startReminderWorker(bot) {
+    cron.schedule("0 3 * * *", async () => {
+        try { await purgeOldReminders(7); } catch (err) {
+            console.error("Purge failed:", err.message);
+        }
+    });
+
     cron.schedule("* * * * *", async () => {
         const nowIso = new Date().toISOString();
         const due = await listDueReminders(nowIso);
@@ -47,7 +53,10 @@ export function startReminderWorker(bot) {
                     );
                 }
                 await markReminderSent(r.id);
-            } catch { }
+            } catch (err) {
+                console.error(`Reminder ${r.id} failed:`, err.message);
+                await markReminderSent(r.id);
+            }
         }
     });
 }

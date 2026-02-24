@@ -96,3 +96,23 @@ export async function markReminderSent(id) {
     if (r) r.sentAt = new Date().toISOString();
     await db.write();
 }
+
+export async function cancelPendingReminders(tgId) {
+    await db.read();
+    const now = new Date().toISOString();
+    for (const r of db.data.reminders) {
+        if (r.tgId === tgId && !r.sentAt) {
+            r.sentAt = now;
+        }
+    }
+    await db.write();
+}
+
+export async function purgeOldReminders(daysOld = 7) {
+    await db.read();
+    const cutoff = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000).toISOString();
+    db.data.reminders = db.data.reminders.filter(
+        (r) => !r.sentAt || r.sentAt > cutoff
+    );
+    await db.write();
+}

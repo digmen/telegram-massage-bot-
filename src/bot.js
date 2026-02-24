@@ -15,6 +15,9 @@ import {
     secondMsg,
     solutionMsg,
     startMsg,
+    askRequestMsg,
+    hasRequestYesMsg,
+    hasRequestNoMsg,
 } from "./const/message.js";
 import { scheduleNudges } from "./utils/scheduleNudges.js";
 import { SECOND_PHOTO_PATH, START_PHOTO_PATH } from "./const/media.js";
@@ -138,8 +141,9 @@ bot.on("callback_query", async (query) => {
                 bot,
                 chatId,
                 "✅ Начинаем диагностику:\n" +
-                "(Отвечайте текстом) \n\n"
-                + QUESTIONS[0]
+                "(Опишите текстом или нажмите «Нет»)\n\n"
+                + QUESTIONS[0],
+                ik([[{ text: "Нет, не беспокоит", callback_data: "no_pain" }]])
             );
             return;
         case "send_answers":
@@ -158,6 +162,26 @@ bot.on("callback_query", async (query) => {
                 solutionMsg,
                 ik([[{ text: "💆‍♂️Записаться на пробный массаж", callback_data: "book" }]])
             );
+            return;
+        case "no_pain":
+            await upsertUser(tgId, { state: "ask_request", chatId });
+            await sendHTML(
+                bot,
+                chatId,
+                askRequestMsg,
+                ik([
+                    [{ text: "Да", callback_data: "has_request_yes" }],
+                    [{ text: "Нет", callback_data: "has_request_no" }],
+                ])
+            );
+            return;
+        case "has_request_yes":
+            await upsertUser(tgId, { state: "need_phone", chatId });
+            await sendHTML(bot, chatId, hasRequestYesMsg, kbContact());
+            return;
+        case "has_request_no":
+            await upsertUser(tgId, { state: "need_phone", chatId });
+            await sendHTML(bot, chatId, hasRequestNoMsg, kbContact());
             return;
         case "book":
             await upsertUser(tgId, { state: "need_phone", chatId });
@@ -200,10 +224,15 @@ bot.on("message", async (msg) => {
         const text = msg.text.trim();
 
         if (user.state === "need_phone") {
+            const phoneRegex = /^[\d\s\-+().]{7,20}$/;
+            if (!phoneRegex.test(text)) {
+                await bot.sendMessage(chatId, "Пожалуйста, отправьте корректный номер телефона 📞", kbContact());
+                return;
+            }
             await completeBooking({
                 tgId,
                 chatId,
-                phone: msg.contact.phone_number,
+                phone: text,
                 from: msg.from,
                 userCached: user,
             });
@@ -238,6 +267,19 @@ bot.on("message", async (msg) => {
             ik([[{ text: "💆‍♂️Записаться", callback_data: "book" }]])
         );
     }
+});
+
+bot.on("polling_error", (err) => console.error("Polling error:", err.message));
+
+process.on("SIGINT", () => {
+    console.log("\n🛑 Shutting down...");
+    bot.stopPolling();
+    process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+    bot.stopPolling();
+    process.exit(0);
 });
 
 (async () => {

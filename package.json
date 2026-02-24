@@ -4,15 +4,13 @@
   "type": "module",
   "main": "src/bot.js",
   "scripts": {
-    "start": "node src/bot.js",
-    "dev": "nodemon"
+    "start": "node src/bot.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
     "lowdb": "^7.0.1",
     "node-cron": "^3.0.3",
-    "node-telegram-bot-api": "^0.67.0",
-    "telegram": "^2.26.22"
+    "node-telegram-bot-api": "^0.67.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

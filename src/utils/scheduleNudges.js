@@ -1,6 +1,8 @@
-import { addReminder } from "../storage.js";
+import { addReminder, cancelPendingReminders } from "../storage.js";
 
 export async function scheduleNudges(tgId) {
+    await cancelPendingReminders(tgId);
+
     const now = Date.now();
     const idBase = `${tgId}_${now}`;
 
