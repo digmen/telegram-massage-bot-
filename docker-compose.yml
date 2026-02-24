@@ -6,8 +6,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./db.json:/app/db.json
-      - ./src/const/media:/app/src/const/media
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
     deploy:
